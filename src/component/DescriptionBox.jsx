@@ -1,11 +1,22 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 
 const DescriptionBox = () => {
   
   const divRef = useRef(null); // useRef to get a reference to the contentEditable div
 
+  // On mount, load saved content from localStorage
+
+  useEffect(() => {
+    const savedContent = localStorage.getItem("descriptionContent");
+
+    if (savedContent && divRef.current) {
+      divRef.current.innerHTML = savedContent;
+    }
+  }, []);
+
   const handleInput = () => {
     updateLinks();
+    saveContent();
   };
 
   const updateLinks = () => {
@@ -31,6 +42,11 @@ const DescriptionBox = () => {
       sel.removeAllRanges();
       sel.addRange(range);
     }
+  };
+
+  const saveContent = () => {
+    const div = divRef.current;
+    localStorage.setItem("descriptionContent", div.innerHTML);
   };
 
   return (
