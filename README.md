@@ -1,12 +1,29 @@
-# React + Vite
+# 📄 DescriptionBox Component
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React component that provides a content-editable text box where users can type or paste text. URLs in the input are automatically converted into clickable hyperlinks, styled with blue color and underline.
 
-Currently, two official plugins are available:
+## ✨ Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+* Editable text box using `contentEditable`.
+* Auto-detection and conversion of URLs into clickable links.
+* URLs open in a new tab (`target="_blank"`).
+* Maintains cursor position at the end after every input.
 
-## Expanding the ESLint configuration
+## 🧠 How It Works
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+* The component uses `useRef` to gain access to the DOM node of the editable `div`.
+* On every input (`onInput`), it scans for URLs using a regex and wraps them with an `<a>` tag.
+* `placeCaretAtEnd()` ensures the cursor remains at the end of the text box after links are added.
+
+### URL Regex Used
+
+```js
+const urlRegex = /(https?:\/\/[^\s]+)/g;
+```
+
+This regex matches any string that starts with `http://` or `https://` and is followed by non-whitespace characters.
+
+## ⚠️ Notes
+
+* The component does a full innerText-to-innerHTML conversion on each input. This could potentially remove complex formatting if added.
+* `contentEditable` elements are inherently tricky for state management; consider limitations for larger-scale apps.
