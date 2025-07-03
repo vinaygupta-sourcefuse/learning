@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FiMaximize } from "react-icons/fi";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
@@ -6,8 +6,8 @@ import "react-quill/dist/quill.snow.css";
 const DescriptionBox = () => {
   const [description, setDescription] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const modalQuillRef = useRef(null);
 
-  // Load saved content on mount
   useEffect(() => {
     const savedContent = localStorage.getItem("descriptionContent");
     if (savedContent) {
@@ -15,16 +15,30 @@ const DescriptionBox = () => {
     }
   }, []);
 
-  // Save content when changed
+  // Focus modal editor on open to ensure correct cursor behavior
+  useEffect(() => {
+    if (isModalOpen && modalQuillRef.current) {
+      modalQuillRef.current.getEditor().focus();
+    }
+  }, [isModalOpen]);
+
   const handleChange = (content) => {
     setDescription(content);
     localStorage.setItem("descriptionContent", content);
   };
 
+  const formats = [
+    "size",
+    "bold", "italic", "underline", "strike",
+    "link",
+    "list", "bullet",
+    "color", "background"
+  ];
+
   return (
-    <div className="p-4 max-w-2xl mx-auto relative">
+    <div className="p-4 max-w-2xl mx-auto relative border-2 mt-12">
       <h2 className="text-xl font-semibold mb-2 flex items-center justify-between">
-        Description Box
+        Reminders
         <button
           onClick={() => setIsModalOpen(true)}
           className="ml-4 p-2 rounded hover:bg-gray-200"
@@ -34,7 +48,6 @@ const DescriptionBox = () => {
         </button>
       </h2>
 
-      {/* Main Quill editor */}
       <ReactQuill
         value={description}
         onChange={handleChange}
@@ -49,6 +62,7 @@ const DescriptionBox = () => {
             [{ color: [] }, { background: [] }],
           ],
         }}
+        formats={formats}
       />
 
       {isModalOpen && (
@@ -57,6 +71,7 @@ const DescriptionBox = () => {
           <div
             className="fixed inset-0 backdrop-blur-sm z-40"
             onClick={() => setIsModalOpen(false)}
+            tabIndex={-1}
           ></div>
 
           {/* Modal */}
@@ -68,10 +83,10 @@ const DescriptionBox = () => {
               >
                 ✕
               </button>
-              <h2 className="text-lg font-semibold mb-4">Edit Description</h2>
+              <h2 className="text-lg font-semibold mb-4">Reminders</h2>
 
-              {/* Modal Quill editor */}
               <ReactQuill
+                ref={modalQuillRef}
                 value={description}
                 onChange={handleChange}
                 theme="snow"
@@ -85,6 +100,7 @@ const DescriptionBox = () => {
                     [{ color: [] }, { background: [] }],
                   ],
                 }}
+                formats={formats}
               />
             </div>
           </div>
