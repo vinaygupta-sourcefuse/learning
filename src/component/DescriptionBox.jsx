@@ -1,106 +1,32 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FiMaximize } from "react-icons/fi";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 const DescriptionBox = () => {
-  const divRef = useRef(null);
-  const modalDivRef = useRef(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [description, setDescription] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Load saved content when mounted
+  // Load saved content on mount
   useEffect(() => {
     const savedContent = localStorage.getItem("descriptionContent");
-    if (savedContent && divRef.current) {
+    if (savedContent) {
       setDescription(savedContent);
-      divRef.current.innerHTML = savedContent;
     }
   }, []);
 
-  const handleInput = () => {
-    updateLinks();
-    saveContent();
-  };
-
-  const handleModalInput = () => {
-    updateLinks(modalDivRef);
-    saveContent(modalDivRef);
-    console.log('modalDivRef.current.innerHTML', modalDivRef.current.innerHTML)
-  };
-
-  const updateLinks = (ref = divRef) => {
-    const div = ref.current;
-    const urlRegex = /(https?:\/\/[^\s]+)/g;
-    let html = div.innerText.replace(urlRegex, (url) => {
-      return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline font-medium">${url}</a>`;
-    });
-    div.innerHTML = html;
-    placeCaretAtEnd(div);
-  };
-
-  const placeCaretAtEnd = (el) => {
-    el.focus();
-    if (
-      typeof window.getSelection !== "undefined" &&
-      typeof document.createRange !== "undefined"
-    ) {
-      let range = document.createRange();
-      range.selectNodeContents(el);
-      range.collapse(false);
-      let sel = window.getSelection();
-      sel.removeAllRanges();
-      sel.addRange(range);
-    }
-  };
-
-  const saveContent = (ref = divRef) => {
-    const div = ref.current;
-    localStorage.setItem("descriptionContent", div.innerHTML);
-    if (ref === divRef && modalDivRef.current) {
-      modalDivRef.current.innerHTML = div.innerHTML;
-    }
-    if (ref === modalDivRef && divRef.current) {
-      divRef.current.innerHTML = div.innerHTML;
-    }
-  };
-
-  const handleClick = (e) => {
-    const target = e.target;
-    if (target.tagName === "A") {
-      e.preventDefault();
-      window.open(target.href, "_blank");
-    }
-  };
-
-  const handleModalClick = (e) => {
-    const target = e.target;
-    if (target.tagName === "A") {
-      e.preventDefault();
-      window.open(target.href, "_blank");
-    }
+  // Save content when changed
+  const handleChange = (content) => {
+    setDescription(content);
+    localStorage.setItem("descriptionContent", content);
   };
 
   return (
     <div className="p-4 max-w-2xl mx-auto relative">
-      <style>
-        {`
-          [contenteditable] a {
-            cursor: pointer;
-          }
-        `}
-      </style>
-
       <h2 className="text-xl font-semibold mb-2 flex items-center justify-between">
         Description Box
         <button
-          onClick={() => {
-            const savedContent = localStorage.getItem("descriptionContent");
-            console.log('savedContent', savedContent)
-            if (modalDivRef.current) {
-              modalDivRef.current.innerHTML = savedContent;
-              console.log('modalDivRef.current.innerHTML', modalDivRef.current.innerHTML)
-            }
-            setIsModalOpen(true);
-          }}
+          onClick={() => setIsModalOpen(true)}
           className="ml-4 p-2 rounded hover:bg-gray-200"
           title="Enlarge"
         >
@@ -108,13 +34,22 @@ const DescriptionBox = () => {
         </button>
       </h2>
 
-      <div
-        ref={divRef}
-        contentEditable
-        onInput={handleInput}
-        onClick={handleClick}
-        className="min-h-[100px] border border-gray-300 p-3 text-base whitespace-pre-wrap outline-none rounded-md focus:ring-2 focus:ring-blue-400"
-      ></div>
+      {/* Main Quill editor */}
+      <ReactQuill
+        value={description}
+        onChange={handleChange}
+        theme="snow"
+        className="min-h-[100px]"
+        modules={{
+          toolbar: [
+            [{ size: ["small", false, "large", "huge"] }],
+            ["bold", "italic", "underline", "strike"],
+            ["link"],
+            [{ list: "ordered" }, { list: "bullet" }],
+            [{ color: [] }, { background: [] }],
+          ],
+        }}
+      />
 
       {isModalOpen && (
         <>
@@ -134,14 +69,23 @@ const DescriptionBox = () => {
                 ✕
               </button>
               <h2 className="text-lg font-semibold mb-4">Edit Description</h2>
-              <div
-                ref={modalDivRef}
-                contentEditable
-                onInput={handleModalInput}
-                onClick={handleModalClick}
-                className="min-h-[200px] border border-gray-400 p-4 text-base whitespace-pre-wrap outline-none rounded-md focus:ring-2 focus:ring-blue-400"
-                dangerouslySetInnerHTML={{ __html: description }}
-              ></div>
+
+              {/* Modal Quill editor */}
+              <ReactQuill
+                value={description}
+                onChange={handleChange}
+                theme="snow"
+                className="min-h-[200px]"
+                modules={{
+                  toolbar: [
+                    [{ size: ["small", false, "large", "huge"] }],
+                    ["bold", "italic", "underline", "strike"],
+                    ["link"],
+                    [{ list: "ordered" }, { list: "bullet" }],
+                    [{ color: [] }, { background: [] }],
+                  ],
+                }}
+              />
             </div>
           </div>
         </>
