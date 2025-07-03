@@ -1,66 +1,35 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FiMaximize } from "react-icons/fi";
+import { Editor } from "primereact/editor";
+import "primereact/resources/themes/saga-blue/theme.css";
+import "primereact/resources/primereact.min.css";
+import "primeicons/primeicons.css";
 
 const DescriptionBox = () => {
-  const divRef = useRef(null);
-  const modalDivRef = useRef(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [description, setDescription] = useState("");
 
-  // Load saved content when mounted
+  // Load saved content on mount
   useEffect(() => {
     const savedContent = localStorage.getItem("descriptionContent");
-    if (savedContent && divRef.current) {
+    if (savedContent) {
       setDescription(savedContent);
-      divRef.current.innerHTML = savedContent;
     }
   }, []);
 
-  const handleInput = () => {
-    updateLinks();
-    saveContent();
+  const handleChange = (value) => {
+    const updatedHTML = updateLinks(value);
+    setDescription(updatedHTML);
+    localStorage.setItem("descriptionContent", updatedHTML);
   };
 
-  const handleModalInput = () => {
-    updateLinks(modalDivRef);
-    saveContent(modalDivRef);
-    console.log('modalDivRef.current.innerHTML', modalDivRef.current.innerHTML)
-  };
-
-  const updateLinks = (ref = divRef) => {
-    const div = ref.current;
-    const urlRegex = /(https?:\/\/[^\s]+)/g;
-    let html = div.innerText.replace(urlRegex, (url) => {
+  const updateLinks = (html) => {
+    const urlRegex = /(https?:\/\/[^\s<]+)/g;
+    return html.replace(urlRegex, (url) => {
+      // Avoid wrapping existing anchor tags
+      if (url.startsWith('<a')) return url;
       return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline font-medium">${url}</a>`;
     });
-    div.innerHTML = html;
-    placeCaretAtEnd(div);
-  };
-
-  const placeCaretAtEnd = (el) => {
-    el.focus();
-    if (
-      typeof window.getSelection !== "undefined" &&
-      typeof document.createRange !== "undefined"
-    ) {
-      let range = document.createRange();
-      range.selectNodeContents(el);
-      range.collapse(false);
-      let sel = window.getSelection();
-      sel.removeAllRanges();
-      sel.addRange(range);
-    }
-  };
-
-  const saveContent = (ref = divRef) => {
-    const div = ref.current;
-    localStorage.setItem("descriptionContent", div.innerHTML);
-    if (ref === divRef && modalDivRef.current) {
-      modalDivRef.current.innerHTML = div.innerHTML;
-    }
-    if (ref === modalDivRef && divRef.current) {
-      divRef.current.innerHTML = div.innerHTML;
-    }
   };
 
   const handleClick = (e) => {
@@ -71,36 +40,12 @@ const DescriptionBox = () => {
     }
   };
 
-  const handleModalClick = (e) => {
-    const target = e.target;
-    if (target.tagName === "A") {
-      e.preventDefault();
-      window.open(target.href, "_blank");
-    }
-  };
-
   return (
     <div className="p-4 max-w-2xl mx-auto relative">
-      <style>
-        {`
-          [contenteditable] a {
-            cursor: pointer;
-          }
-        `}
-      </style>
-
       <h2 className="text-xl font-semibold mb-2 flex items-center justify-between">
         Description Box
         <button
-          onClick={() => {
-            const savedContent = localStorage.getItem("descriptionContent");
-            console.log('savedContent', savedContent)
-            if (modalDivRef.current) {
-              modalDivRef.current.innerHTML = savedContent;
-              console.log('modalDivRef.current.innerHTML', modalDivRef.current.innerHTML)
-            }
-            setIsModalOpen(true);
-          }}
+          onClick={() => setIsModalOpen(true)}
           className="ml-4 p-2 rounded hover:bg-gray-200"
           title="Enlarge"
         >
@@ -108,13 +53,13 @@ const DescriptionBox = () => {
         </button>
       </h2>
 
-      <div
-        ref={divRef}
-        contentEditable
-        onInput={handleInput}
-        onClick={handleClick}
-        className="min-h-[100px] border border-gray-300 p-3 text-base whitespace-pre-wrap outline-none rounded-md focus:ring-2 focus:ring-blue-400"
-      ></div>
+      <div onClick={handleClick}>
+        <Editor
+          value={description}
+          onTextChange={(e) => handleChange(e.htmlValue)}
+          style={{ height: "200px" }}
+        />
+      </div>
 
       {isModalOpen && (
         <>
@@ -134,14 +79,13 @@ const DescriptionBox = () => {
                 ✕
               </button>
               <h2 className="text-lg font-semibold mb-4">Edit Description</h2>
-              <div
-                ref={modalDivRef}
-                contentEditable
-                onInput={handleModalInput}
-                onClick={handleModalClick}
-                className="min-h-[200px] border border-gray-400 p-4 text-base whitespace-pre-wrap outline-none rounded-md focus:ring-2 focus:ring-blue-400"
-                dangerouslySetInnerHTML={{ __html: description }}
-              ></div>
+              <div onClick={handleClick}>
+                <Editor
+                  value={description}
+                  onTextChange={(e) => handleChange(e.htmlValue)}
+                  style={{ height: "300px" }}
+                />
+              </div>
             </div>
           </div>
         </>
