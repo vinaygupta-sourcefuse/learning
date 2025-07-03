@@ -2,7 +2,7 @@ import React, { useRef } from "react";
 
 const DescriptionBox = () => {
   
-  const divRef = useRef(null);
+  const divRef = useRef(null); // useRef to get a reference to the contentEditable div
 
   const handleInput = () => {
     updateLinks();
@@ -15,7 +15,7 @@ const DescriptionBox = () => {
       return `<a href="${url}" target="_blank" style="color: blue; text-decoration: underline;" contenteditable="false">${url}</a>`;
     });
     div.innerHTML = html;
-    placeCaretAtEnd(div);
+    placeCaretAtEnd(div); // this will place the caret at the end of the contentEditable div
   };
 
   const placeCaretAtEnd = (el) => {
@@ -38,7 +38,7 @@ const DescriptionBox = () => {
       <h2>Description Box with Inline Clickable Links</h2>
       <div
         ref={divRef}
-        contentEditable 
+        contentEditable  // this will allow us to make the div editable
         onInput={handleInput}
         style={{
           minHeight: "100px",
