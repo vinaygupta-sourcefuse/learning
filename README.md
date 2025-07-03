@@ -1,29 +1,40 @@
 # 📄 DescriptionBox Component
 
-A React component that provides a content-editable text box where users can type or paste text. URLs in the input are automatically converted into clickable hyperlinks, styled with blue color and underline.
+A React component that provides a rich text editor for typing and formatting text, with URL support and a modal popup for an enlarged editing experience.
 
 ## ✨ Features
 
-* Editable text box using `contentEditable`.
-* Auto-detection and conversion of URLs into clickable links.
-* URLs open in a new tab (`target="_blank"`).
-* Maintains cursor position at the end after every input.
+* Rich text editing powered by **React Quill**.
+* Toolbar with formatting options: font size, bold, italic, underline, strikethrough, links, lists, text/background color.
+* URLs are automatically recognized and rendered as clickable links within the editor.
+* Links open in a new tab (`target="_blank"`).
+* Editable main editor and an enlargable modal editor, both synchronized to the same content.
+* Content is saved to and loaded from `localStorage` automatically.
+* Modal editor gains focus on open for smooth typing.
+* Cleaner and more robust than managing raw `contentEditable` divs.
 
 ## 🧠 How It Works
 
-* The component uses `useRef` to gain access to the DOM node of the editable `div`.
-* On every input (`onInput`), it scans for URLs using a regex and wraps them with an `<a>` tag.
-* `placeCaretAtEnd()` ensures the cursor remains at the end of the text box after links are added.
+* The component uses React state (`description`) as the **single source of truth** for the content.
+* Both the main editor and the modal editor use `<ReactQuill>` components bound to the same `description` state.
+* Changes in either editor update `description` and persist the content to `localStorage`.
+* React Quill handles all caret management, formatting, and link recognition internally, so no manual DOM manipulation is needed.
+* When the modal opens, the editor inside it is automatically focused to ensure the cursor works as expected.
+* The toolbar configuration controls which formatting options are available to the user.
 
-### URL Regex Used
+## 🎨 Toolbar Configuration
 
-```js
-const urlRegex = /(https?:\/\/[^\s]+)/g;
-```
+The toolbar includes:
 
-This regex matches any string that starts with `http://` or `https://` and is followed by non-whitespace characters.
+* Font size selector (small, normal, large, huge)
+* Bold, italic, underline, strikethrough
+* Hyperlink insertion
+* Ordered and unordered lists
+* Text color and background color pickers
 
 ## ⚠️ Notes
 
-* The component does a full innerText-to-innerHTML conversion on each input. This could potentially remove complex formatting if added.
-* `contentEditable` elements are inherently tricky for state management; consider limitations for larger-scale apps.
+* React Quill outputs HTML content which is saved as-is in `localStorage`. When loading, this HTML is directly loaded into the editors.
+* The component no longer uses manual regex or innerHTML manipulations — this is now handled internally by Quill.
+* Keyboard behaviors such as Enter key, cursor position, and link clicks are handled gracefully by Quill.
+* Styling and modal overlay must be handled carefully to avoid interfering with editor focus or keyboard input.
