@@ -5,11 +5,13 @@ const DescriptionBox = () => {
   const divRef = useRef(null);
   const modalDivRef = useRef(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [description, setDescription] = useState("");
 
   // Load saved content when mounted
   useEffect(() => {
     const savedContent = localStorage.getItem("descriptionContent");
     if (savedContent && divRef.current) {
+      setDescription(savedContent);
       divRef.current.innerHTML = savedContent;
     }
   }, []);
@@ -138,6 +140,7 @@ const DescriptionBox = () => {
                 onInput={handleModalInput}
                 onClick={handleModalClick}
                 className="min-h-[200px] border border-gray-400 p-4 text-base whitespace-pre-wrap outline-none rounded-md focus:ring-2 focus:ring-blue-400"
+                dangerouslySetInnerHTML={{ __html: description }}
               ></div>
             </div>
           </div>
