@@ -5,7 +5,6 @@ const DescriptionBox = () => {
   const divRef = useRef(null); // useRef to get a reference to the contentEditable div
 
   // On mount, load saved content from localStorage
-
   useEffect(() => {
     const savedContent = localStorage.getItem("descriptionContent");
 
@@ -23,7 +22,7 @@ const DescriptionBox = () => {
     const div = divRef.current;  // this will point to actual DOM node when mounted
     const urlRegex = /(https?:\/\/[^\s]+)/g;
     let html = div.innerText.replace(urlRegex, (url) => {
-      return `<a href="${url}" target="_blank" style="color: blue; text-decoration: underline;" contenteditable="false">${url}</a>`;
+      return `<a href="${url}" target="_blank" class="text-blue-600 underline font-medium">${url}</a>`;
     });
     div.innerHTML = html;
     placeCaretAtEnd(div); // this will place the caret at the end of the contentEditable div
@@ -50,18 +49,13 @@ const DescriptionBox = () => {
   };
 
   return (
-    <div className="App">
-      <h2>Description Box with Inline Clickable Links</h2>
+    <div className="p-4 max-w-2xl mx-auto">
+      <h2 className="text-xl font-semibold mb-2">Description Box with Inline Clickable Links</h2>
       <div
         ref={divRef}
         contentEditable  // this will allow us to make the div editable
         onInput={handleInput}
-        style={{
-          minHeight: "100px",
-          border: "1px solid #ccc",
-          padding: "10px",
-          whiteSpace: "pre-wrap",
-        }}
+         className="min-h-[100px] border border-gray-300 p-3 text-base whitespace-pre-wrap outline-none rounded-md focus:ring-2 focus:ring-blue-400"
       ></div>
     </div>
   );
