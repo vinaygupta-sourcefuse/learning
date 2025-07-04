@@ -38,7 +38,7 @@ const DescriptionBox = () => {
   };
 
   return (
-    <div className="p-4 max-w-2xl mx-auto relative border-2 mt-12">
+    <div className="p-4 max-w-2xl mx-auto relative border-3 mt-12">
       {/* Inline style block for custom Quill styling */}
       <style>
         {`
