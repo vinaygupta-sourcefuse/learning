@@ -39,6 +39,31 @@ const DescriptionBox = () => {
 
   return (
     <div className="p-4 max-w-2xl mx-auto relative border-2 mt-12">
+      {/* Inline style block for custom Quill styling */}
+      <style>
+        {`
+          /* Default editor styling */
+          .custom-quill .ql-container {
+            height: 300px;
+          }
+
+          .custom-quill .ql-editor {
+            height: 100%;
+            overflow-y: auto;
+          }
+
+          /* Modal editor styling */
+          .custom-quill-modal .ql-container {
+            height: 400px;
+          }
+
+          .custom-quill-modal .ql-editor {
+            height: 100%;
+            overflow-y: auto;
+          }
+        `}
+      </style>
+
       <h2 className="text-xl font-semibold mb-2 flex items-center justify-between">
         Reminders
         <button
@@ -57,7 +82,7 @@ const DescriptionBox = () => {
           theme="snow"
           modules={modules}
           formats={formats}
-          className="min-h-[100px]"
+          className="custom-quill"
         />
       )}
 
@@ -84,7 +109,7 @@ const DescriptionBox = () => {
                 theme="snow"
                 modules={modules}
                 formats={formats}
-                className="min-h-[200px]"
+                className="custom-quill custom-quill-modal"
               />
             </div>
           </div>
